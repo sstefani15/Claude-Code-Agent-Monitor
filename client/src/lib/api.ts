@@ -566,6 +566,16 @@ export const api = {
       }),
   },
 
+  // ────────────────────────────── Claude Usage API ──────────────────────────────
+  /** Account-level 5-hour session / weekly rate-limit status, read from the local
+   *  "Claude Usage" menu bar app's snapshot history. Maps to
+   *  `server/routes/claude-usage.js`. `available: false` when that app isn't
+   *  installed or hasn't written a snapshot yet. */
+  claudeUsage: {
+    /** GET /api/claude-usage */
+    get: () => request<ClaudeUsageResponse>("/claude-usage"),
+  },
+
   // ──────────────────────────────── Stats API ────────────────────────────────
   /** Lightweight overview counters for the dashboard header. */
   stats: {
@@ -2837,4 +2847,30 @@ export interface ImportBackupResult {
   model_pricing: number;
   /** Bundle entries that could not be restored (e.g. a session with no id). */
   errors: number;
+}
+
+/** One rate-limit window's status ({@link api.claudeUsage.get}). */
+export interface ClaudeUsageWindow {
+  /** 0-100, or null if the source snapshot didn't carry one. */
+  percentage: number | null;
+  tokensUsed: number | null;
+  /** Unix ms the window resets at, or null if not yet known (snapshot taken
+   *  right after the source app started/reset, before it re-fetched). */
+  resetsAt: number | null;
+  /** Unix ms the snapshot itself was taken — use to judge staleness, since the
+   *  source app only refreshes while it's running. */
+  asOf: number | null;
+}
+
+/** GET /api/claude-usage — account-level 5-hour session / weekly limit status. */
+export interface ClaudeUsageResponse {
+  /** False when the "Claude Usage" app isn't installed or has no snapshots yet. */
+  available: boolean;
+  session: ClaudeUsageWindow | null;
+  weekly:
+    | (ClaudeUsageWindow & {
+        opusPercentage: number | null;
+        sonnetPercentage: number | null;
+      })
+    | null;
 }

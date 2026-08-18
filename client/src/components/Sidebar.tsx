@@ -88,6 +88,7 @@ import { api } from "../lib/api";
 import { eventBus } from "../lib/eventBus";
 import type { UpdateStatusPayload, WSMessage } from "../lib/types";
 import { Select } from "./Select";
+import { ClaudeUsageWidget } from "./ClaudeUsageWidget";
 
 function isUpdatePayload(x: unknown): x is UpdateStatusPayload {
   return typeof x === "object" && x !== null && "git_repo" in x && "update_available" in x;
@@ -668,6 +669,7 @@ export function Sidebar({ wsConnected, collapsed, onToggle }: SidebarProps) {
       <div
         className={`px-3 pt-3 pb-4 border-t border-border space-y-2.5 flex-shrink-0 ${collapsed ? "px-2" : ""}`}
       >
+        <ClaudeUsageWidget collapsed={collapsed} />
         <button
           type="button"
           onClick={() => setStatusModalOpen(true)}
